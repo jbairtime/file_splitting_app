@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import zipfile
+import io
 
 # This app takes a csv file and splits it randomly into two files based on the percentage of rows for file A.
 # Can get rid of duplicates and missing values.
@@ -35,6 +37,9 @@ if uploaded_file is not None:
         
         csv_a = convert_df(df_a)
         csv_b = convert_df(df_b)
-
-        st.download_button("Download File A", csv_a, f"{uploaded_file.name.split('.')[0]}_A.csv", "text/csv")
-        st.download_button("Download File B", csv_b, f"{uploaded_file.name.split('.')[0]}_B.csv", "text/csv")
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'a') as zip_file:
+            zip_file.writestr(f"{uploaded_file.name.split('.')[0]}_A.csv", csv_a)
+            zip_file.writestr(f"{uploaded_file.name.split('.')[0]}_B.csv", csv_b)
+        
+        st.download_button("Download Files", zip_buffer, f"{uploaded_file.name.split('.')[0]}.zip", "application/zip")
